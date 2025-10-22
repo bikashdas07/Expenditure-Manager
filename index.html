@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Monitor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .scrollable-content {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div id="loading" class="text-center p-8 hidden">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+        <p class="text-gray-600 text-lg">Loading financial data...</p>
+    </div>
+
+    <!-- Main Content Container -->
+    <div id="main-content" class="w-full max-w-4xl p-4 md:p-8 bg-white rounded-xl shadow-lg border border-gray-200">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-6 border-b pb-4">
+            <h1 class="text-3xl font-bold text-gray-800">Financial Monitor</h1>
+        </header>
+
+        <!-- Notification Message Box -->
+        <div id="notification-box" class="hidden bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg shadow-sm mb-6">
+            <div class="flex items-center">
+                <svg class="h-6 w-6 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.487 0l5.528 9.878c.765 1.36-.217 3.064-1.744 3.064H4.473c-1.527 0-2.509-1.704-1.744-3.064l5.528-9.878zM10 12a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
+                <p id="notification-text" class="font-medium"></p>
+            </div>
+        </div>
+        
+        <!-- Gemini-powered Spending Insights Section -->
+        <div class="mt-6 bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Spending Insights ✨</h2>
+            <div class="flex flex-col md:flex-row items-center gap-4">
+                <button id="get-insights-btn" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                    Get Spending Insights ✨
+                </button>
+                <div id="insights-loading" class="hidden animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
+            </div>
+            <div id="insights-output" class="mt-4 text-gray-700 leading-relaxed hidden">
+                <p class="font-bold">Summary:</p>
+                <div id="insights-text"></div>
+            </div>
+        </div>
+
+        <!-- Dashboard and Transaction Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Dashboard Card -->
+            <div class="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Dashboard</h2>
+                <form id="limit-form" class="space-y-4 mb-4">
+                    <div>
+                        <label for="monthly-limit" class="block text-sm font-medium text-gray-700">Set Monthly Limit ($)</label>
+                        <input type="number" id="monthly-limit" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="e.g., 2000">
+                    </div>
+                    <button type="submit" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Set Limit
+                    </button>
+                </form>
+                <div class="space-y-3 text-lg">
+                    <p>Monthly Limit: <span id="display-limit" class="font-bold text-gray-800">$0.00</span></p>
+                    <p>Total Spent: <span id="display-spent" class="font-bold text-gray-800">$0.00</span></p>
+                    <p>Amount Left: <span id="display-remaining" class="font-bold text-green-600">$0.00</span></p>
+                </div>
+            </div>
+
+            <!-- Transaction Form -->
+            <div class="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Add New Transaction</h2>
+                <form id="transaction-form" class="space-y-4">
+                    <div>
+                        <label for="transaction-amount" class="block text-sm font-medium text-gray-700">Amount ($)</label>
+                        <input type="number" id="transaction-amount" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="e.g., 50.00">
+                    </div>
+                    <div>
+                        <label for="transaction-description" class="block text-sm font-medium text-gray-700">Description</label>
+                        <input type="text" id="transaction-description" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="e.g., Groceries">
+                    </div>
+                    <button type="submit" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Add Transaction
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Transactions History -->
+        <div class="mt-6 bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Transactions History</h2>
+            <div class="scrollable-content">
+                <ul id="transactions-list" class="divide-y divide-gray-200">
+                    <!-- Transactions will be inserted here by JavaScript -->
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Net Worth & Investment Section -->
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Net Worth Card -->
+            <div class="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Net Worth & Savings</h2>
+                <div class="space-y-3 text-lg">
+                    <p>Current Net Worth: <span id="display-networth" class="font-bold text-gray-800">$0.00</span></p>
+                    <p>Unspent Funds This Month: <span id="unspent-funds" class="font-bold text-gray-800">$0.00</span></p>
+                </div>
+                <div class="flex flex-col md:flex-row gap-4 mt-4">
+                    <button id="calculate-networth" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                        Add Unspent Funds to Net Worth
+                    </button>
+                    <button id="reset-monthly-spend" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        Reset Monthly Spend
+                    </button>
+                </div>
+            </div>
+
+            <!-- Investment & Savings Tools -->
+            <div class="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Investment & Savings Tools</h2>
+                <div class="space-y-4">
+                    <p class="text-sm text-gray-600 italic">
+                        Disclaimer: The following links are for informational purposes and are not financial advice. Please do your own research.
+                    </p>
+                    <a href="https://www.sebi.gov.in/sebi_data/attachdocs/1449033320092.pdf" target="_blank" class="block w-full py-2 px-4 text-center border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                        SEBI Website (Investor Education)
+                    </a>
+                    <a href="https://www.investor.gov/" target="_blank" class="block w-full py-2 px-4 text-center border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                        U.S. Securities and Exchange Commission
+                    </a>
+                    <a href="https://www.fincen.gov/" target="_blank" class="block w-full py-2 px-4 text-center border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                        Financial Crimes Enforcement Network (FinCEN)
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // **IMPORTANT: The following code has been updated to remove all Firebase/Firestore dependencies.**
+        // This version is purely client-side and does not save data persistently.
+
+        const loadingScreen = document.getElementById('loading');
+        const mainContent = document.getElementById('main-content');
+        const limitForm = document.getElementById('limit-form');
+        const transactionForm = document.getElementById('transaction-form');
+        const transactionsList = document.getElementById('transactions-list');
+        const displayLimit = document.getElementById('display-limit');
+        const displaySpent = document.getElementById('display-spent');
+        const displayRemaining = document.getElementById('display-remaining');
+        const notificationBox = document.getElementById('notification-box');
+        const notificationText = document.getElementById('notification-text');
+        const displayNetWorth = document.getElementById('display-networth');
+        const unspentFunds = document.getElementById('unspent-funds');
+        const calculateNetWorthBtn = document.getElementById('calculate-networth');
+        const resetMonthlySpendBtn = document.getElementById('reset-monthly-spend');
+        
+        // Gemini API elements
+        const getInsightsBtn = document.getElementById('get-insights-btn');
+        const insightsLoading = document.getElementById('insights-loading');
+        const insightsOutput = document.getElementById('insights-output');
+        const insightsText = document.getElementById('insights-text');
+        
+        let monthlyLimit = 0;
+        let totalSpent = 0;
+        let transactions = [];
+        let netWorth = 0;
+
+        // Immediately hide the loading screen and show content
+        loadingScreen.classList.add('hidden');
+        mainContent.classList.remove('hidden');
+
+        const updateDashboard = () => {
+            const remaining = monthlyLimit - totalSpent;
+            displaySpent.textContent = `$${totalSpent.toFixed(2)}`;
+            displayRemaining.textContent = `$${remaining.toFixed(2)}`;
+            unspentFunds.textContent = `$${Math.max(0, remaining).toFixed(2)}`;
+
+            if (remaining < 0) {
+                displayRemaining.classList.remove('text-green-600');
+                displayRemaining.classList.add('text-red-600');
+            } else {
+                displayRemaining.classList.add('text-green-600');
+                displayRemaining.classList.remove('text-red-600');
+            }
+
+            const spentPercentage = (totalSpent / monthlyLimit) * 100;
+            if (monthlyLimit > 0 && spentPercentage >= 90) {
+                const amountLeft = monthlyLimit - totalSpent;
+                notificationText.textContent = `Encountering deadline! You have spent ${spentPercentage.toFixed(0)}% of your monthly limit. Amount left: $${amountLeft.toFixed(2)}`;
+                notificationBox.classList.remove('hidden');
+            } else {
+                notificationBox.classList.add('hidden');
+            }
+        };
+
+        const renderTransactions = () => {
+            transactionsList.innerHTML = '';
+            if (transactions.length === 0) {
+                transactionsList.innerHTML = '<li class="p-4 text-center text-gray-500">No transactions yet.</li>';
+                return;
+            }
+            transactions.forEach(transaction => {
+                const li = document.createElement('li');
+                li.className = 'p-4 flex justify-between items-center';
+                li.innerHTML = `
+                    <div>
+                        <div class="text-gray-900">${transaction.description}</div>
+                        <div class="text-sm text-gray-500">${new Date(transaction.timestamp).toLocaleString()}</div>
+                    </div>
+                    <div class="text-red-600 font-medium">-$${transaction.amount.toFixed(2)}</div>
+                `;
+                transactionsList.appendChild(li);
+            });
+        };
+
+        limitForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newLimit = parseFloat(document.getElementById('monthly-limit').value);
+            if (!isNaN(newLimit) && newLimit >= 0) {
+                monthlyLimit = newLimit;
+                displayLimit.textContent = `$${monthlyLimit.toFixed(2)}`;
+                updateDashboard();
+                document.getElementById('monthly-limit').value = '';
+            }
+        });
+
+        transactionForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('transaction-amount').value);
+            const description = document.getElementById('transaction-description').value.trim();
+
+            if (!isNaN(amount) && amount > 0 && description) {
+                transactions.unshift({
+                    amount: amount,
+                    description: description,
+                    timestamp: new Date().getTime()
+                });
+                totalSpent += amount;
+                renderTransactions();
+                updateDashboard();
+                document.getElementById('transaction-amount').value = '';
+                document.getElementById('transaction-description').value = '';
+            }
+        });
+
+        calculateNetWorthBtn.addEventListener('click', () => {
+            const remaining = monthlyLimit - totalSpent;
+            if (remaining > 0) {
+                netWorth += remaining;
+                displayNetWorth.textContent = `$${netWorth.toFixed(2)}`;
+            }
+        });
+
+        resetMonthlySpendBtn.addEventListener('click', () => {
+            transactions = [];
+            totalSpent = 0;
+            renderTransactions();
+            updateDashboard();
+        });
+
+        // Gemini API Integration - **Note: This will not work without a valid API key and internet connection.**
+        getInsightsBtn.addEventListener('click', async () => {
+            if (transactions.length === 0) {
+                insightsOutput.classList.remove('hidden');
+                insightsText.innerHTML = '<p class="text-red-500">Please add some transactions first to get insights.</p>';
+                return;
+            }
+
+            insightsOutput.classList.add('hidden');
+            insightsLoading.classList.remove('hidden');
+
+            const transactionData = transactions.map(t => `${t.description}: $${t.amount.toFixed(2)}`).join('\n');
+            const prompt = `Here are my recent financial transactions:\n\n${transactionData}\n\nCan you analyze this data and provide a concise summary of my spending habits? Identify any trends or key spending categories. Do not offer financial advice.`;
+            
+            const apiKey = ""; // **ADD YOUR API KEY HERE**
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            
+            try {
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    systemInstruction: { parts: [{ text: "You are a financial analysis assistant. Your job is to provide a brief, helpful summary of spending habits based on a list of transactions. Respond in a friendly, conversational tone." }] },
+                    generationConfig: {
+                        temperature: 0.5,
+                        topP: 1,
+                        topK: 1
+                    }
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status} ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                const generatedText = result.candidates[0].content.parts[0].text;
+                
+                insightsText.innerHTML = generatedText.replace(/\n/g, '<br>');
+                insightsOutput.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Gemini API call failed:", error);
+                insightsText.innerHTML = `<p class="text-red-500">Failed to get insights. Please try again later.</p>`;
+                insightsOutput.classList.remove('hidden');
+            } finally {
+                insightsLoading.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
