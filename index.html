@@ -24,22 +24,17 @@
         <p class="text-gray-600 text-lg">Loading financial data...</p>
     </div>
 
-    <!-- Main Content Container -->
     <div id="main-content" class="w-full max-w-4xl p-4 md:p-8 bg-white rounded-xl shadow-lg border border-gray-200">
         <!-- Header -->
         <header class="flex justify-between items-center mb-6 border-b pb-4">
             <h1 class="text-3xl font-bold text-gray-800">Financial Monitor</h1>
         </header>
-
-        <!-- Notification Message Box -->
         <div id="notification-box" class="hidden bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg shadow-sm mb-6">
             <div class="flex items-center">
                 <svg class="h-6 w-6 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.487 0l5.528 9.878c.765 1.36-.217 3.064-1.744 3.064H4.473c-1.527 0-2.509-1.704-1.744-3.064l5.528-9.878zM10 12a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
                 <p id="notification-text" class="font-medium"></p>
             </div>
         </div>
-        
-        <!-- Gemini-powered Spending Insights Section -->
         <div class="mt-6 bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200">
             <h2 class="text-xl font-semibold text-gray-700 mb-4">Spending Insights ✨</h2>
             <div class="flex flex-col md:flex-row items-center gap-4">
@@ -53,10 +48,7 @@
                 <div id="insights-text"></div>
             </div>
         </div>
-
-        <!-- Dashboard and Transaction Section -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Dashboard Card -->
             <div class="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200">
                 <h2 class="text-xl font-semibold text-gray-700 mb-4">Dashboard</h2>
                 <form id="limit-form" class="space-y-4 mb-4">
@@ -74,8 +66,6 @@
                     <p>Amount Left: <span id="display-remaining" class="font-bold text-green-600">$0.00</span></p>
                 </div>
             </div>
-
-            <!-- Transaction Form -->
             <div class="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200">
                 <h2 class="text-xl font-semibold text-gray-700 mb-4">Add New Transaction</h2>
                 <form id="transaction-form" class="space-y-4">
@@ -93,20 +83,14 @@
                 </form>
             </div>
         </div>
-
-        <!-- Transactions History -->
         <div class="mt-6 bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200">
             <h2 class="text-xl font-semibold text-gray-700 mb-4">Transactions History</h2>
             <div class="scrollable-content">
                 <ul id="transactions-list" class="divide-y divide-gray-200">
-                    <!-- Transactions will be inserted here by JavaScript -->
                 </ul>
             </div>
         </div>
-        
-        <!-- Net Worth & Investment Section -->
         <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Net Worth Card -->
             <div class="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200">
                 <h2 class="text-xl font-semibold text-gray-700 mb-4">Net Worth & Savings</h2>
                 <div class="space-y-3 text-lg">
@@ -122,8 +106,6 @@
                     </button>
                 </div>
             </div>
-
-            <!-- Investment & Savings Tools -->
             <div class="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200">
                 <h2 class="text-xl font-semibold text-gray-700 mb-4">Investment & Savings Tools</h2>
                 <div class="space-y-4">
@@ -145,9 +127,6 @@
     </div>
 
     <script type="module">
-        // **IMPORTANT: The following code has been updated to remove all Firebase/Firestore dependencies.**
-        // This version is purely client-side and does not save data persistently.
-
         const loadingScreen = document.getElementById('loading');
         const mainContent = document.getElementById('main-content');
         const limitForm = document.getElementById('limit-form');
@@ -162,8 +141,6 @@
         const unspentFunds = document.getElementById('unspent-funds');
         const calculateNetWorthBtn = document.getElementById('calculate-networth');
         const resetMonthlySpendBtn = document.getElementById('reset-monthly-spend');
-        
-        // Gemini API elements
         const getInsightsBtn = document.getElementById('get-insights-btn');
         const insightsLoading = document.getElementById('insights-loading');
         const insightsOutput = document.getElementById('insights-output');
@@ -174,7 +151,6 @@
         let transactions = [];
         let netWorth = 0;
 
-        // Immediately hide the loading screen and show content
         loadingScreen.classList.add('hidden');
         mainContent.classList.remove('hidden');
 
@@ -267,7 +243,6 @@
             updateDashboard();
         });
 
-        // Gemini API Integration - **Note: This will not work without a valid API key and internet connection.**
         getInsightsBtn.addEventListener('click', async () => {
             if (transactions.length === 0) {
                 insightsOutput.classList.remove('hidden');
@@ -281,7 +256,7 @@
             const transactionData = transactions.map(t => `${t.description}: $${t.amount.toFixed(2)}`).join('\n');
             const prompt = `Here are my recent financial transactions:\n\n${transactionData}\n\nCan you analyze this data and provide a concise summary of my spending habits? Identify any trends or key spending categories. Do not offer financial advice.`;
             
-            const apiKey = ""; // **ADD YOUR API KEY HERE**
+            const apiKey = ""; 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             
             try {
@@ -322,3 +297,4 @@
     </script>
 </body>
 </html>
+
